@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: sh -c "npm install && npm run start:dev"
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./package.json:/usr/src/app/package.json
+      - ./package-lock.json:/usr/src/app/package-lock.json
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    networks:
+      - rbh-nw
+    depends_on:
+      - db
+  db:
+    platform: linux/x86_64
+    restart: always
+    image: postgres:latest
+    volumes:
+      - rbh-data-volume:/var/lib/postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: rbh
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "password"
+    networks:
+      - rbh-nw
+volumes:
+  rbh-data-volume:
+networks:
+  rbh-nw:
